@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>校园工作台 · 我的课表</title>
+<!--
+  ============================================================
+  校园工作台 —— 应用外壳（Shell）
+  ------------------------------------------------------------
+  这个文件只保留「所有页面都需要的骨架」：
+    登录页 / 侧边栏容器 / 页面挂载点 / 模态框 / 提示 / 预览器
+
+  真正的页面内容在 js/pages/ 下，由 js/shell.js 动态挂载。
+  新增一个版块不需要动这个文件，见 js/pages/index.js 的说明。
+
+  样式：
+    css/base.css      设计变量 + 通用控件
+    css/layout.css    登录页 + 应用外壳 + 响应式
+    css/pages/*.css   各页面自己的样式，进入页面时才加载
+  ============================================================
+-->
+<link rel="stylesheet" href="/css/base.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+</head>
+<body>
+
+<!-- ==================== 登录 / 注册 ==================== -->
+<div class="auth" id="auth-view">
+  <div class="auth-visual">
+    <div class="auth-brand">
+      <div class="auth-logo">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10 12 4 2 10l10 6 10-6Z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>
+        </svg>
+      </div>
+      <span>Campus Desk</span>
+    </div>
+
+    <div class="auth-hero">
+      <h1>你的课表，<br/>你的文件，你的一站式工作台。</h1>
+      <p>登录后即可看到属于你自己的课程安排，随时增删改；上传的文件保存在服务器上，换设备登录依然在。</p>
+      <ul class="auth-feats">
+        <li>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span>多用户独立空间，各看各的课表</span>
+        </li>
+        <li>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span>可视化课表，点击即可添加 / 修改 / 删除</span>
+        </li>
+        <li>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span>文件在线预览，公开资料同学互通</span>
+        </li>
+        <li>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <span>数据可导出为 JSON，方便迁移与备份</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="auth-foot">数据保存在你自己的服务器上</div>
+  </div>
+
+  <div class="auth-panel">
+    <div class="auth-box">
+      <!-- 登录 -->
+      <div id="login-pane">
+        <h2>欢迎回来</h2>
+        <p class="sub">登录以查看你的课表与文件</p>
+        <form class="auth-form" id="login-form" autocomplete="on">
+          <div class="form-msg" id="login-msg"></div>
+          <label class="field">
+            <span>用户名</span>
+            <input id="login-user" name="username" placeholder="请输入用户名" autocomplete="username" />
+          </label>
+          <label class="field">
+            <span>密码</span>
+            <input id="login-pass" type="password" name="password" placeholder="请输入密码" autocomplete="current-password" />
+          </label>
+          <div class="row-between">
+            <label class="checkbox"><input type="checkbox" id="login-remember" checked /> 记住我</label>
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-demo">一键体验示例账号</button>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">登录</button>
+        </form>
+        <div class="auth-switch">还没有账号？<button type="button" id="go-register">立即注册</button></div>
+      </div>
+
+      <!-- 注册 -->
+      <div id="register-pane" hidden>
+        <h2>创建账号</h2>
+        <p class="sub">30 秒完成，立刻拥有自己的课表</p>
+        <form class="auth-form" id="register-form">
+          <div class="form-msg" id="register-msg"></div>
+          <label class="field">
+            <span>用户名</span>
+            <input id="reg-user" placeholder="3-20 位字母、数字或下划线" autocomplete="username" />
+          </label>
+          <label class="field">
+            <span>显示昵称（选填）</span>
+            <input id="reg-name" placeholder="例如：小林" />
+          </label>
+          <label class="field">
+            <span>密码</span>
+            <input id="reg-pass" type="password" placeholder="至少 6 位" autocomplete="new-password" />
+          </label>
+          <label class="field">
+            <span>确认密码</span>
+            <input id="reg-pass2" type="password" placeholder="再次输入密码" autocomplete="new-password" />
+          </label>
+          <button type="submit" class="btn btn-primary btn-block">注册并进入</button>
+        </form>
+        <div class="auth-switch">已有账号？<button type="button" id="go-login">返回登录</button></div>
+      </div>
+
+      <div class="auth-tip">
+        账号、课表与文件都保存在这台服务器上，换设备登录即可看到。密码使用 scrypt 加盐哈希存储。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 主应用 ==================== -->
+<div class="app" id="app-view" hidden>
+  <aside class="sidebar">
+    <div class="side-brand">
+      <div class="side-logo">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10 12 4 2 10l10 6 10-6Z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>
+        </svg>
+      </div>
+      <span>Campus Desk</span>
+    </div>
+
+    <!-- 导航由 js/shell.js 根据页面注册表自动生成 -->
+    <nav class="nav" id="nav"></nav>
+
+    <div class="side-spacer"></div>
+    <div class="user-chip">
+      <div class="avatar" id="side-avatar">U</div>
+      <div class="user-meta">
+        <b id="side-name">用户</b>
+        <span id="side-user">@user</span>
+      </div>
+      <button class="icon-btn" id="btn-logout" title="退出登录">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- 页面由 js/pages/*.js 渲染到这里 -->
+  <main class="main" id="page-host"></main>
+</div>
+
+<!-- ==================== 模态框 ==================== -->
+<div class="modal-backdrop" id="modal-backdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h3 id="modal-title">标题</h3>
+      <button class="icon-btn" id="modal-close" aria-label="关闭">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<!-- ==================== 文件预览器 ==================== -->
+<div class="viewer" id="viewer" hidden>
+  <div class="viewer-bar">
+    <div class="vname" id="viewer-name">文件名</div>
+    <div class="vmeta" id="viewer-meta"></div>
+    <div class="viewer-actions">
+      <button class="viewer-btn" id="viewer-download">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>
+        下载
+      </button>
+      <button class="viewer-btn primary" id="viewer-close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        关闭
+      </button>
+    </div>
+  </div>
+  <div class="viewer-body" id="viewer-body"></div>
+</div>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

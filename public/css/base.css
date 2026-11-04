@@ -1,0 +1,167 @@
+/* =========================================================
+   基础层：设计变量、重置、通用控件（按钮 / 表单）
+   新增页面一般不需要改这里
+   ========================================================= */
+:root{
+  --bg:#f4f6fb;
+  --panel:#ffffff;
+  --panel-2:#f8fafc;
+  --line:#e6e9f2;
+  --line-2:#eef1f7;
+  --text:#182034;
+  --text-2:#3d4761;
+  --muted:#6b7690;
+  --accent:#5566f2;
+  --accent-2:#7c4dff;
+  --accent-soft:#eef0ff;
+  --ok:#0f9d76;
+  --warn:#d98207;
+  --danger:#e0464b;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 1px 2px rgba(16,24,40,.04), 0 10px 28px -14px rgba(16,24,40,.18);
+  --shadow-lg:0 20px 60px -20px rgba(16,24,40,.28);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+html,body{height:100%;}
+body{
+  margin:0;font-family:var(--font);color:var(--text);
+  background:var(--bg);-webkit-font-smoothing:antialiased;
+  font-size:14px;line-height:1.5;
+}
+button{font-family:inherit;font-size:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;font-size:inherit;color:inherit;}
+a{color:var(--accent);text-decoration:none;}
+
+/* ---------- 通用控件 ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  height:38px;padding:0 16px;border-radius:10px;border:1px solid transparent;
+  background:var(--panel);color:var(--text-2);font-weight:500;
+  transition:.16s ease;white-space:nowrap;
+}
+.btn:hover{transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;box-shadow:0 6px 18px -8px rgba(85,102,242,.8);}
+.btn-primary:hover{box-shadow:0 10px 24px -10px rgba(85,102,242,.9);}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--text-2);}
+.btn-ghost:hover{background:var(--panel-2);border-color:#d8dde9;}
+.btn-danger{background:#fff;border-color:#f6d4d5;color:var(--danger);}
+.btn-danger:hover{background:#fef4f4;}
+.btn-sm{height:32px;padding:0 12px;font-size:13px;border-radius:8px;}
+.btn-block{width:100%;}
+.icon-btn{
+  width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:8px;border:1px solid transparent;background:transparent;color:var(--muted);
+  transition:.15s;
+}
+.icon-btn:hover{background:var(--panel-2);color:var(--text);}
+
+.field{display:flex;flex-direction:column;gap:6px;}
+.field > span{font-size:12.5px;font-weight:600;color:var(--muted);letter-spacing:.2px;}
+.field input,.field select,.field textarea{
+  height:40px;padding:0 12px;border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:#fff;outline:none;transition:.15s;width:100%;
+}
+.field textarea{height:auto;padding:10px 12px;resize:vertical;}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:#b9c1f8;box-shadow:0 0 0 3.5px rgba(85,102,242,.12);
+}
+.field select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4.5 6 8.5 10 4.5' fill='none' stroke='%236b7690' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+
+/* ---------- 分段控件（多页面复用） ---------- */
+.seg{display:inline-flex;gap:3px;padding:3px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;}
+.seg-btn{
+  height:32px;padding:0 14px;border-radius:8px;border:0;background:transparent;
+  color:var(--muted);font-weight:600;font-size:13px;transition:.15s;white-space:nowrap;
+}
+.seg-btn:hover{color:var(--text-2);}
+.seg-btn.active{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(16,24,40,.1);}
+.seg-sm .seg-btn{height:28px;padding:0 12px;font-size:12.5px;}
+
+/* ---------- 模态框 ---------- */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(16,24,40,.42);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;padding:20px;z-index:80;
+  animation:fade .16s ease;
+}
+.modal{
+  width:100%;max-width:470px;background:var(--panel);border-radius:18px;box-shadow:var(--shadow-lg);
+  max-height:calc(100vh - 40px);display:flex;flex-direction:column;animation:pop .2s cubic-bezier(.2,.9,.3,1.1);
+}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px);}to{opacity:1;transform:none;}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;}
+.modal-head h3{margin:0;font-size:16.5px;letter-spacing:-.2px;}
+.modal-body{padding:0 20px;overflow-y:auto;}
+.modal-foot{display:flex;justify-content:flex-end;gap:9px;padding:16px 20px 18px;}
+.form-grid{display:flex;flex-direction:column;gap:14px;padding-bottom:4px;}
+.form-row{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:10px;}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;}
+.swatch{
+  width:26px;height:26px;border-radius:8px;border:2px solid transparent;cursor:pointer;
+  transition:.14s;position:relative;
+}
+.swatch:hover{transform:scale(1.1);}
+.swatch.sel{border-color:var(--text);box-shadow:0 0 0 2px #fff inset;}
+
+/* ---------- Toast ---------- */
+#toasts{position:fixed;right:20px;bottom:20px;z-index:120;display:flex;flex-direction:column;gap:9px;align-items:flex-end;}
+.toast{
+  display:flex;align-items:center;gap:9px;padding:11px 15px;border-radius:11px;
+  background:#1d2436;color:#fff;font-size:13px;box-shadow:0 14px 34px -14px rgba(16,24,40,.8);
+  animation:slide .24s cubic-bezier(.2,.9,.3,1.1);max-width:340px;
+}
+.toast.ok{background:#0e8a68;}
+.toast.warn{background:#b8770a;}
+.toast.error{background:#c9383d;}
+@keyframes slide{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:none;}}
+
+/* ---------- 文件预览器（features/viewer.js 全局复用） ---------- */
+.viewer{
+  position:fixed;inset:0;z-index:110;display:flex;flex-direction:column;
+  background:rgba(12,16,26,.94);animation:fade .18s ease;
+}
+.viewer-bar{
+  display:flex;align-items:center;gap:14px;padding:11px 18px;flex:none;
+  background:rgba(22,28,42,.92);border-bottom:1px solid rgba(255,255,255,.08);
+}
+.vname{flex:1;min-width:0;font-size:13.5px;font-weight:600;color:#fff;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.vmeta{font-size:12px;color:rgba(255,255,255,.55);flex:none;}
+.viewer-actions{display:flex;gap:8px;flex:none;}
+.viewer-btn{
+  display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 13px;border-radius:8px;
+  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);
+  color:#fff;font-size:12.5px;font-weight:600;transition:.15s;cursor:pointer;
+}
+.viewer-btn:hover{background:rgba(255,255,255,.18);}
+.viewer-btn.primary{background:var(--accent);border-color:var(--accent);}
+.viewer-body{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;}
+.viewer-body img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.55);}
+.viewer-body iframe{width:100%;height:100%;border:0;border-radius:8px;background:#fff;}
+.viewer-body pre{
+  width:100%;height:100%;margin:0;padding:18px;border-radius:8px;background:#fff;color:var(--text);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12.5px;line-height:1.75;overflow:auto;white-space:pre-wrap;word-break:break-word;
+}
+.viewer-loading,.viewer-fail{color:rgba(255,255,255,.82);font-size:13.5px;text-align:center;line-height:1.9;max-width:520px;}
+.viewer-fail b{display:block;font-size:15px;color:#fff;margin-bottom:7px;}
+.viewer-fail .viewer-btn{margin-top:16px;}
+.spinner{
+  width:26px;height:26px;margin:0 auto 14px;border-radius:50%;
+  border:2.5px solid rgba(255,255,255,.18);border-top-color:#fff;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media (max-width:560px){
+  .viewer-bar{padding:9px 12px;gap:9px;}
+  .vmeta{display:none;}
+  .viewer-btn{padding:0 10px;font-size:12px;}
+  .viewer-body{padding:8px;}
+}
+
+/* ---------- 演示模式：隐藏登录/账号相关操作 ---------- */
+.demo-mode .demo-hide{display:none !important;}
+.demo-mode #btn-logout{display:none !important;}

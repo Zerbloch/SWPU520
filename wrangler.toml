@@ -1,0 +1,39 @@
+# ============================================================
+# Campus Desk · Cloudflare Pages 项目配置
+# ------------------------------------------------------------
+# 部署前需要：
+#   1. 创建 D1 数据库，把 database_id 填到下面
+#      npx wrangler d1 create campus-desk-db
+#   2. 创建 R2 桶
+#      npx wrangler r2 bucket create campus-desk-files
+#   3. 应用 schema
+#      npx wrangler d1 execute campus-desk-db --remote --file=./schema.sql
+#   4. 配置密钥（不要写进本文件）
+#      npx wrangler secret put APP_SECRET
+#      npx wrangler secret put AI_API_KEY   # 可选，接入 AI 摘要
+#   5. 部署
+#      npx wrangler pages deploy public --project-name=campus-desk
+# ============================================================
+
+name = "campus-desk"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "public"
+
+# ---- D1：关系数据（用户/课表/文件元数据/AI 缓存） ----
+[[d1_databases]]
+binding = "DB"
+database_name = "campus-desk-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# ---- R2：上传文件的二进制内容 ----
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "campus-desk-files"
+
+# ---- 可公开的默认变量；敏感值请用 wrangler secret put ----
+[vars]
+# AI 大模型（OpenAI 兼容接口）。留空或未配置时，AI 摘要自动降级为隐藏。
+AI_BASE_URL = "https://api.openai.com/v1"
+AI_MODEL = "gpt-4o-mini"
+AI_CACHE_MINUTES = "30"
+AI_MAX_FILE_CHARS = "2000"

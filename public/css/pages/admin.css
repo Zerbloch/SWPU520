@@ -1,0 +1,58 @@
+/* 超级管理员页面样式 */
+.admin-wrap{display:grid;grid-template-columns:240px 1fr;gap:16px;align-items:start;}
+@media (max-width:900px){ .admin-wrap{grid-template-columns:1fr;} }
+
+.admin-users .list{max-height:60vh;overflow-y:auto;}
+.admin-user{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+  cursor:pointer;border:1px solid transparent;transition:.14s;
+}
+.admin-user:hover{background:var(--panel-2);}
+.admin-user.sel{background:var(--accent-soft);border-color:#d9ddff;}
+.admin-user .avatar{width:30px;height:30px;font-size:12px;}
+.admin-user .umain{flex:1;min-width:0;}
+.admin-user .umain b{display:block;font-size:13.5px;}
+.admin-user .umain span{display:block;font-size:11.5px;color:var(--muted);}
+.role-badge{
+  flex:none;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;
+  background:var(--panel-2);color:var(--muted);border:1px solid var(--line);
+}
+.role-badge.admin{background:#eef0ff;color:var(--accent);border-color:#d9ddff;}
+
+/* 只读课表网格 */
+.admin-grid{
+  display:grid;gap:2px;overflow-x:auto;padding-bottom:4px;
+}
+.ag-corner{background:transparent;}
+.ag-day{
+  text-align:center;font-size:12.5px;font-weight:600;color:var(--text-2);
+  padding:8px 4px;background:var(--panel-2);border-radius:6px;
+}
+.ag-day.weekend{color:var(--muted);}
+.ag-time{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:11px;color:var(--muted);padding:4px 2px;line-height:1.2;
+}
+.ag-time b{font-size:12px;color:var(--text-2);}
+.ag-time span{font-size:10.5px;}
+.ag-slot{
+  min-height:54px;background:var(--panel-2);border-radius:6px;border:1px solid var(--line-2);
+}
+.ag-course{
+  border-radius:8px;padding:7px 9px;font-size:12px;line-height:1.35;
+  background:#eef0ff;
+  background:color-mix(in srgb, var(--c, #5566f2) 13%, #fff);
+  border-left:3px solid var(--c, #5566f2);overflow:hidden;
+}
+.ag-course b{display:block;font-size:12.5px;}
+.ag-course span{display:block;font-size:11px;color:var(--muted);margin-top:2px;}
+
+.admin-files{display:flex;flex-direction:column;gap:9px;}
+
+/* 文件行（管理员查看用，避免依赖 files.css） */
+.file-row{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line-2);}
+.file-ext{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:11px;flex:none;letter-spacing:.3px;}
+.file-main{flex:1;min-width:0;}
+.file-main b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-main span{display:block;font-size:12px;color:var(--muted);margin-top:2px;}
+.file-actions{display:flex;gap:4px;flex:none;}
