@@ -155,3 +155,22 @@ npx wrangler pages dev public \
 
 - **D1 数据**：`npx wrangler d1 export campus-desk-db --remote --output=backup.sql`
 - **R2 文件**：`npx wrangler r2 object get ...`（建议用 rclone 等工具同步整个桶）
+
+## 八、常见错误
+
+### `Error 8000022: Invalid database UUID`
+`wrangler.toml` 里的 D1 `database_id` 还是占位符，Cloudflare 在发布 Functions 时校验失败。
+
+**解决（二选一）：**
+
+- **推荐**：在 Cloudflare 控制台创建 D1 数据库与 R2 桶，然后到
+  **Pages → 你的项目 → Settings → Functions → Bindings** 添加：
+  - D1 database → Variable name 填 `DB`
+  - R2 bucket → Variable name 填 `FILES`
+
+  保存后会自动重新部署（`wrangler.toml` 里的绑定保持注释即可）。
+- 或者把真实的 D1 `Database ID`（UUID）填进 `wrangler.toml` 的 `[[d1_databases]]`，
+  取消注释后重新 `git push`。
+
+### 页面能打开但接口报 500
+通常是 D1/R2 绑定还没生效。检查上面两个绑定是否存在，且变量名严格为 `DB` 和 `FILES`。

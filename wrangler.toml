@@ -19,16 +19,27 @@ name = "campus-desk"
 compatibility_date = "2024-11-01"
 pages_build_output_dir = "public"
 
-# ---- D1：关系数据（用户/课表/文件元数据/AI 缓存） ----
-[[d1_databases]]
-binding = "DB"
-database_name = "campus-desk-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
-
-# ---- R2：上传文件的二进制内容 ----
-[[r2_buckets]]
-binding = "FILES"
-bucket_name = "campus-desk-files"
+# ---- D1 / R2 绑定 ----
+# 两种方式，二选一：
+#
+# 方式 A（推荐 · 配合 Pages 控制台的 Git 集成）：
+#   保持下面两块处于注释状态，然后到
+#   Cloudflare Pages → 你的项目 → Settings → Functions → Bindings 里添加：
+#     · D1 database  → Variable name 填  DB
+#     · R2 bucket    → Variable name 填  FILES
+#   保存后会自动重新部署，Functions 就能拿到 env.DB / env.FILES。
+#
+# 方式 B（把绑定写进版本库）：
+#   取消注释，把 database_id 换成你真实的 D1 UUID（不是名称，是那串 UUID）。
+#
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "campus-desk-db"
+# database_id = "把你的 D1 Database ID(UUID) 填这里"
+#
+# [[r2_buckets]]
+# binding = "FILES"
+# bucket_name = "campus-desk-files"
 
 # ---- 可公开的默认变量；敏感值请用 wrangler secret put ----
 [vars]
