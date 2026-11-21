@@ -1,8 +1,10 @@
 name: Deploy to Cloudflare Pages
 
+# 默认只允许手动触发。
+# 原因：项目已由 Cloudflare 的 Git 集成自动构建部署，若这里也监听 push，
+# 会额外产生一条「直传部署」，两条路径抢同一个生产环境，很难排查问题。
+# 只有在需要手动初始化 D1 表结构、或临时绕过 Git 集成时才在这里点 Run workflow。
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
