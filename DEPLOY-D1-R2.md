@@ -246,11 +246,30 @@ openssl rand -hex 32
 https://<你的域名>.pages.dev/api/health
 ```
 
-期望：`{"ok":true}`
+期望：`{"ok":true,"bindings":{"DB":true,"FILES":true},...}`
 
-- 返回 `{"ok":false,"error":"数据库不可用"}` (503) → DB 绑定没生效（变量名错了，或没重新部署）
-- 返回 404 → `functions/` 目录位置不对（必须在项目根目录）
-- 返回 500 且页面是 HTML → Workers 抛异常，去看 `Deployments → 最新 → Logs`
+`/api/health` 是**自诊断**的，失败时会自己说明缺什么：
+
+| 返回 | 含义 | 解法 |
+|---|---|---|
+| `ok:true` | 全部就绪 | 继续第 ② 步 |
+| `ok:false` + `"DB 绑定缺失：env.DB 为 undefined"` | 绑定没加、变量名写错、或加到了 Preview 环境 | 见下方三条排查 |
+| `ok:false` + `"数据库不可达：..."` | `DB` 存在但连不上（库被删 / 指向别的库） | 重新选一次 D1 数据库 |
+| 404 | `functions/` 不在仓库根目录 | 检查目录层级 |
+| 500 且返回 HTML | Functions 抛异常 | `Deployments → 最新 → View logs` |
+
+**三个字段直接告诉你问题在哪：**
+
+- `bindings.DB` / `bindings.FILES` → `false` 就是没绑上
+- `env.branch` → 生产环境必须是 `main`；如果是别的分支名，说明你在看**预览部署**
+- `env.commit` → 对比 GitHub 最新 commit，不一致说明线上还是旧版本
+
+**DB 绑定缺失的三条排查（按概率排序）：**
+
+1. **加到了 Preview，测试的是 Production**。`xxx.pages.dev` 永远指向生产部署，而 Pages 的 Bindings 分 Production / Preview 两套。必须在 **Production** 那一栏加。
+2. **加完没重新部署**。绑定时不生效，`Deployments → ⋯ → Retry deployment`。
+3. **变量名不是 `DB`**。大小写敏感，`db`、`Db`、`DB `（带空格）都不行。
+
 
 ### ② 种子账户自动创建
 
