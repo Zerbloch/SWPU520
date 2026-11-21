@@ -1,16 +1,16 @@
 # D1 + R2 部署手册（照着做，约 15 分钟）
 
-> 适用：`cloudflare/` 这个 Cloudflare Pages 项目（仓库 `Zerbloch/ZIOZ432`）。
+> 适用：`cloudflare/` 这个 Cloudflare Pages 项目（仓库 `Zerbloch/ZIOZ432`）。  
 > 目标：让 `/api/*` 接口真正跑起来。静态页面不需要 D1/R2 就能打开，但登录、课表、文件全都依赖这两个资源。
 
 ---
 
 ## 0. 先理解两个资源的角色
 
-| 资源 | 存什么 | 代码里的名字（绑定名） | 建在哪 |
-|---|---|---|---|
-| **D1** | 用户、课表、文件元数据、AI 缓存（结构化数据） | `DB` | Storage & Databases → D1 |
-| **R2** | 上传的文件本体（二进制） | `FILES` | R2 Object Storage |
+| 资源     | 存什么                      | 代码里的名字（绑定名） | 建在哪                      |
+| ------ | ------------------------ | ----------- | ------------------------ |
+| **D1** | 用户、课表、文件元数据、AI 缓存（结构化数据） | `DB`        | Storage & Databases → D1 |
+| **R2** | 上传的文件本体（二进制）             | `FILES`     | R2 Object Storage        |
 
 绑定名是**代码里写死的**，必须一模一样：
 
@@ -32,16 +32,16 @@ env.FILES.put(key, buf, ...)   // 8 处
 
 **填写**：
 
-| 字段 | 值 |
-|---|---|
-| Database name | `campus-desk-db` |
+| 字段            | 值                       |
+| ------------- | ----------------------- |
+| Database name | `campus-desk-db`        |
 | Location / 区域 | 默认即可（想给国内用户更低延迟可选 APAC） |
 
 点 **Create**。
 
 **创建后做一件事**：进入 `campus-desk-db` 详情页，页面顶部有 **Database ID**（一串形如 `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` 的 UUID），点复制存到记事本。
 
-> 只有"方式 B（把绑定写进 wrangler.toml）"才需要这个 UUID。走控制台绑定（方式 A）可以不用。
+> 只有"方式 B（把绑定写进 wrangler.toml）"才需要这个 UUID。走控制台绑定（方式 A）可以不用。  
 > 常见错误：把**数据库名称**填进 `database_id` → 报 `Error 8000022: Invalid database UUID`。
 
 ---
@@ -52,7 +52,7 @@ env.FILES.put(key, buf, ...)   // 8 处
 
 ```sql
 CREATE TABLE IF NOT EXISTS users (
-  id         TEXT PRIMARY KEY,
+  id       TEXT PRIMARY KEY,
   username   TEXT NOT NULL UNIQUE COLLATE NOCASE,
   nickname   TEXT NOT NULL,
   salt       TEXT NOT NULL,
@@ -131,10 +131,10 @@ users
 
 **路径**：左侧 **R2 Object Storage** → **Create bucket**（旧版是 **R2** → Create bucket）
 
-| 字段 | 值 |
-|---|---|
-| Bucket name | `campus-desk-files` |
-| Location | `APAC`（亚太）或 `Automatic` |
+| 字段          | 值                       |
+| ----------- | ----------------------- |
+| Bucket name | `campus-desk-files`     |
+| Location    | `APAC`（亚太）或 `Automatic` |
 
 **保持默认，不要开 Public access / 自定义域名**。原因：文件是经过 Functions 鉴权后才输出的，私人文件必须只有本人能拿。开了公开访问等于把私人文件暴露给全网。
 
@@ -146,7 +146,7 @@ users
 
 ## 4. 绑定到 Pages 项目（决定接口能否跑）
 
-**路径**：**Workers & Pages** → 点你的 Pages 项目 → **Settings** → **Bindings**
+**路径**：**Workers & Pages** → 点你的 Pages 项目 → **Settings** → **Bindings**  
 （旧版 UI 是 **Settings** → **Functions** → **Bindings**，功能一样）
 
 依次添加两条：
@@ -155,10 +155,10 @@ users
 
 点 **Add** → 选 **D1 database**
 
-| 字段 | 值 |
-|---|---|
-| Variable name | `DB` |
-| D1 database | `campus-desk-db` |
+| 字段            | 值                |
+| ------------- | ---------------- |
+| Variable name | `DB`             |
+| D1 database   | `campus-desk-db` |
 
 点 **Save**。
 
@@ -166,31 +166,49 @@ users
 
 再点 **Add** → 选 **R2 bucket**
 
-| 字段 | 值 |
-|---|---|
-| Variable name | `FILES` |
-| R2 bucket | `campus-desk-files` |
+| 字段            | 值                   |
+| ------------- | ------------------- |
+| Variable name | `FILES`             |
+| R2 bucket     | `campus-desk-files` |
 
 点 **Save**。
 
-> **环境区分**：Production 和 Preview 是两套独立绑定。
+> **环境区分**：Production 和 Preview 是两套独立绑定。  
 > 至少给 **Production** 配好；Preview 如果也想用，建议指向另一个 D1（否则你在预览环境的测试会写进生产库）。
 >
-> **不要两边都配**：绑定要么写在 `wrangler.toml`，要么在控制台配。当前 `wrangler.toml` 里的 D1/R2 两块是注释状态，所以你走控制台路线是正确的，别再去取消注释。
+> **不要两边都配**：绑定要么写在 `wrangler.toml`，要么在控制台配。本仓库的 `wrangler.toml` 已刻意保持最小（只有 `name` + `compatibility_date`），所以控制台可编辑，绑定全部在控制台配。
+
+### 4.3 如果「Add」按钮是灰色的
+
+说明项目被判定为「由 wrangler 配置文件管理」。规则是：只要 `wrangler.toml` 里出现 `pages_build_output_dir`、`[vars]` 或**任何绑定**，这个文件就成为配置源，控制台的 `Settings → Bindings` 和 `Variables and Secrets` 会变成只读。
+
+本仓库已把 `wrangler.toml` 收到最小形态，拉最新代码并重新部署后应恢复可编辑。
+
+**切换后必须确认一件事**：因为文件里不再声明输出目录，去 `Settings → Build → Build output directory` 确认填的是 **`public`**（为空就手动填上再部署）。
+
+若仍然灰着，彻底删掉配置文件即可（上一次部署的配置会保留，控制台照样能改）：
+
+```bash
+git rm wrangler.toml
+git commit -m "chore: 删除 wrangler.toml，改用控制台配置"
+git push
+```
 
 ---
 
 ## 5. 设置密钥 `APP_SECRET`（必做）
 
-代码里是 `env.APP_SECRET || 'dev-secret-change-me'`——不配就会用这个公开的默认值签 Cookie，等于谁都能伪造登录态。
+|                       |   |                                                             |
+| --------------------- | - | ----------------------------------------------------------- |
+| 代码里是 \`env.APP_SECRET |   | 'dev-secret-change-me'\`——不配就会用这个公开的默认值签 Cookie，等于谁都能伪造登录态。 |
 
 **路径**：Pages 项目 → **Settings** → **Variables and Secrets** → **Add**
 
-| 字段 | 值 |
-|---|---|
-| Type | **Secret**（不要选 Text/Var） |
-| Variable name | `APP_SECRET` |
-| Value | 一串随机长字符串（下方命令生成） |
+| 字段            | 值                        |
+| ------------- | ------------------------ |
+| Type          | **Secret**（不要选 Text/Var） |
+| Variable name | `APP_SECRET`             |
+| Value         | 一串随机长字符串（下方命令生成）         |
 
 生成随机密钥（任选一条执行）：
 
@@ -246,13 +264,13 @@ SELECT username, role, created_at FROM users ORDER BY username;
 
 期望 6 行：
 
-| username | role |
-|---|---|
-| User_101 | user |
-| User_102 | user |
-| User_103 | user |
-| User_104 | user |
-| User_105 | user |
+| username | role      |
+| -------- | --------- |
+| User_101 | user      |
+| User_102 | user      |
+| User_103 | user      |
+| User_104 | user      |
+| User_105 | user      |
 | User_106 | **admin** |
 
 这一步同时证明了三件事：D1 绑定成功、表结构正确、种子逻辑跑通。
@@ -302,18 +320,19 @@ npx wrangler pages deploy public --project-name=campus-desk
 
 ## 9. 报错对照表
 
-| 报错 / 现象 | 真实原因 | 解决 |
-|---|---|---|
-| `Error 8000022: Invalid database UUID` | `wrangler.toml` 里 `database_id` 是占位符或填成了库名 | 删掉/注释掉该绑定，改控制台绑定；或填真实 UUID |
-| `env.DB is undefined` / 接口 500 | 绑定名不是 `DB` | Settings → Bindings 改名为 `DB`（大小写敏感） |
-| `no such table: users` | 没跑建表 SQL，或跑到了别的库 | 确认在 `campus-desk-db` 的 Console 里执行了第 2 节 SQL |
-| `/api/health` 返回 503 | DB 绑定缺失，或绑定后没重新部署 | 补绑定 → Retry deployment |
-| `/api/*` 全 404 | `functions/` 不在仓库根目录 | 确认仓库顶层是 `functions/`，不是 `cloudflare/functions/` 之外的层级 |
-| 上传报错 `env.FILES is undefined` | R2 绑定名不是 `FILES` | 改名 `FILES` → 重新部署 |
-| 上传后 R2 里没有对象 | 绑定指向了另一个桶 | 核对 `FILES` 指向 `campus-desk-files` |
-| 登录成功但刷新就掉线 | `APP_SECRET` 没配或每次部署变动 | 配成 Secret 固定值，重新部署 |
-| 中文文件名乱码 | 这是浏览器/下载头问题，非 D1 | 本项目已用 `filename*=UTF-8`，若仍乱码请贴日志 |
-| 页面 404 但部署成功 | 输出目录不是 `public` | `wrangler.toml` 的 `pages_build_output_dir` 必须是 `public` |
+| 报错 / 现象                                | 真实原因                                       | 解决                                                      |
+| -------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
+| Settings → Bindings 的「Add」是灰色的 | `wrangler.toml` 含 `pages_build_output_dir` / `[vars]` / 绑定，文件成了配置源，控制台只读 | 把 `wrangler.toml` 收到最小（只留 `name` + `compatibility_date`），或直接删除该文件，然后去 Build 设置确认输出目录为 `public` |
+| `Error 8000022: Invalid database UUID` | `wrangler.toml` 里 `database_id` 是占位符或填成了库名 | 删掉/注释掉该绑定，改控制台绑定；或填真实 UUID                              |
+| `env.DB is undefined` / 接口 500         | 绑定名不是 `DB`                                 | Settings → Bindings 改名为 `DB`（大小写敏感）                     |
+| `no such table: users`                 | 没跑建表 SQL，或跑到了别的库                           | 确认在 `campus-desk-db` 的 Console 里执行了第 2 节 SQL            |
+| `/api/health` 返回 503                   | DB 绑定缺失，或绑定后没重新部署                          | 补绑定 → Retry deployment                                  |
+| `/api/*` 全 404                         | `functions/` 不在仓库根目录                       | 确认仓库顶层是 `functions/`，不是 `cloudflare/functions/` 之外的层级   |
+| 上传报错 `env.FILES is undefined`          | R2 绑定名不是 `FILES`                           | 改名 `FILES` → 重新部署                                       |
+| 上传后 R2 里没有对象                           | 绑定指向了另一个桶                                  | 核对 `FILES` 指向 `campus-desk-files`                       |
+| 登录成功但刷新就掉线                             | `APP_SECRET` 没配或每次部署变动                     | 配成 Secret 固定值，重新部署                                      |
+| 中文文件名乱码                                | 这是浏览器/下载头问题，非 D1                           | 本项目已用 `filename*=UTF-8`，若仍乱码请贴日志                        |
+| 页面 404 但部署成功                           | 输出目录不是 `public`                            | `wrangler.toml` 的 `pages_build_output_dir` 必须是 `public` |
 
 ---
 
